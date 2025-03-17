@@ -18,6 +18,7 @@ __pycache__/
 # Ignorar entornos virtuales
 venv/
 .env/
+backend/app/.env
 
 # Ignorar dependencias en caso de que uses poetry o pipenv
 .poetry/
@@ -34,4 +35,4 @@ deps/
 .idea/
 *.iml
 
-backend/app/.env
+/app/.env
