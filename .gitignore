@@ -1,0 +1,35 @@
+# Ignorar archivos de configuración
+alembic.ini
+
+# Ignorar la carpeta Alembic y su contenido
+alembic/
+
+# Ignorar la base de datos de ChromaDB
+chroma_db/
+
+# Ignorar documentos y archivos dentro de la carpeta documents
+documents/
+
+# Archivos y carpetas de Python que no deben versionarse
+__pycache__/
+*.pyc
+*.pyo
+
+# Ignorar entornos virtuales
+venv/
+.env/
+
+# Ignorar dependencias en caso de que uses poetry o pipenv
+.poetry/
+Pipfile
+deps/
+
+# Ignorar logs y archivos temporales
+*.log
+*.tmp
+.DS_Store
+
+# Ignorar configuraciones de IDE
+.vscode/
+.idea/
+*.iml
