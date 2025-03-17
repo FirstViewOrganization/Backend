@@ -33,3 +33,5 @@ deps/
 .vscode/
 .idea/
 *.iml
+
+backend/app/.env
