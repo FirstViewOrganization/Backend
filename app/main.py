@@ -1,58 +1,42 @@
-from openai import OpenAI
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
-from fastapi.responses import JSONResponse
-import os
 from dotenv import load_dotenv
 
-from app.api.document_loader import router as document_loader_router
-from app.api.ask_question import router as ask_question_router
+from app.services.config.config_loader import config
+
+from app.api.endpoints.document_loader import document_loader
+from app.api.endpoints.chat import ask_question
+
+from app.core.security import get_api_key
 
 # Cargar variables de entorno
+import os
 dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
 load_dotenv(dotenv_path)
 
-# Configurar OpenAI
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+app = FastAPI(
+    title="IA API",
+    description="API for AI Services",
+    version="1.0.0",
+    dependencies=[Depends(get_api_key)]  # Añadir dependencia a nivel de aplicación
+)
 
-app = FastAPI()
+allowed_origins_str = config['cors']['allowed_origins']
+allowed_origins = [origin.strip() for origin in allowed_origins_str.split(',')]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],  # Permitir todos los métodos HTTP.
     allow_headers=["*"],  # Permitir todos los encabezados.
 )
 
 # Registrar routers
-app.include_router(document_loader_router, prefix="/api")
-app.include_router(ask_question_router, prefix="/api")
-
-# Modelo para la solicitud del usuario
-class UserQuery(BaseModel):
-    question: str
-
-@app.post("/ask")
-async def ask_question(query: UserQuery):
-    try:
-        response = client.chat.completions.create(
-        model="gpt-3.5-turbo",
-        messages=[
-            {"role": "system", "content": "You are a helpful assistant"},
-            {"role": "user", "content": query.question},
-        ],
-        stream=False
-        )
-        # Construir la respuesta JSON
-        answer = response.choices[0].message.content
-
-        return JSONResponse(content={"success": True, "answer": answer}, status_code=200)
-
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+app.include_router(document_loader.router)
+app.include_router(ask_question.router)
 
 @app.get("/")
-async def read_root():
-    return {"message": "Bienvenido al sistema de conocimiento de la empresa"}
+async def root():
+    
+    return {"message": "Welcome to IA API"}
